@@ -167,6 +167,11 @@ public class AccessControlManager implements ExecutionPlanUpdater {
                 .getAclBindings());
       }
 
+      aclBindingsResults.add(
+              new C3ViewerAclBindingsBuilder(
+                      bindingsBuilder, project.getC3Viewers(), project.namePrefix(), true)
+                      .getAclBindings());
+
       syncRbacRawRoles(project.getRbacRawRoles(), topicPrefix, aclBindingsResults);
 
       for (Map.Entry<String, List<Other>> other : project.getOthers().entrySet()) {

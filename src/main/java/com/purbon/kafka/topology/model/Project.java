@@ -5,13 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.artefact.KConnectArtefacts;
 import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
-import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.KSqlApp;
-import com.purbon.kafka.topology.model.users.KStream;
-import com.purbon.kafka.topology.model.users.Other;
-import com.purbon.kafka.topology.model.users.Producer;
-import com.purbon.kafka.topology.model.users.Schemas;
+import com.purbon.kafka.topology.model.users.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +32,11 @@ public interface Project {
   @JsonProperty("ksql")
   List<KSqlApp> getKSqls();
 
-  void setKSqls(List<KSqlApp> ksqls);
+  void setKSqls(List<KSqlApp> c3Viewers);
+
+  List<C3Viewer> getC3Viewers();
+
+  void setC3Viewers(List<C3Viewer> ksqls);
 
   Map<String, List<Other>> getOthers();
 

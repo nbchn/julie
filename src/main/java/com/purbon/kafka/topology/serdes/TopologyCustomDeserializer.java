@@ -17,13 +17,7 @@ import com.purbon.kafka.topology.model.*;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.artefact.*;
-import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.KSqlApp;
-import com.purbon.kafka.topology.model.users.KStream;
-import com.purbon.kafka.topology.model.users.Other;
-import com.purbon.kafka.topology.model.users.Producer;
-import com.purbon.kafka.topology.model.users.Schemas;
+import com.purbon.kafka.topology.model.users.*;
 import com.purbon.kafka.topology.model.users.platform.ControlCenter;
 import com.purbon.kafka.topology.model.users.platform.Kafka;
 import com.purbon.kafka.topology.model.users.platform.KafkaConnect;
@@ -63,6 +57,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   private static final String RBAC_KEY = "rbac";
   private static final String TOPICS_KEY = "topics";
   private static final String PRINCIPAL_KEY = "principal";
+  private static final String C3VIEWER_KEY = "viewer";
 
   private static final String ACCESS_CONTROL = "access_control";
   private static final String ARTEFACTS = "artefacts";
@@ -82,7 +77,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
           STREAMS_KEY,
           SCHEMAS_KEY,
           KSQL_KEY,
-          RBAC_KEY);
+          RBAC_KEY,
+          C3VIEWER_KEY);
 
   private final Configuration config;
 
@@ -224,6 +220,9 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
             break;
           case KSQL_KEY:
             optionalPlatformSystem = doKSqlElements(parser, keyNode);
+            break;
+          case C3VIEWER_KEY:
+            optionalPlatformSystem = doC3ViewerElements(parser, keyNode);
             break;
           default:
             optionalPlatformSystem = Optional.empty();
@@ -399,7 +398,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       if (artefactsNode.has(VARS_NODE)) {
         artefactsNode.get(VARS_NODE);
         varsArtefacts.setSessionVars(
-                parser.getCodec().treeToValue(artefactsNode.get(VARS_NODE), Map.class));
+            parser.getCodec().treeToValue(artefactsNode.get(VARS_NODE), Map.class));
       }
     }
 
@@ -448,10 +447,17 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     return Optional.of(new PlatformSystem(streams));
   }
 
-  private Optional<PlatformSystem> doSchemasElements(JsonParser parser, JsonNode node)
+  private Optional<PlatformSystem> doC3ViewerElements(JsonParser parser, JsonNode node)
       throws JsonProcessingException {
+    List<C3Viewer> viewers =
+        new JsonSerdesUtils<C3Viewer>().parseApplicationUser(parser, node, C3Viewer.class);
+    return Optional.of(new PlatformSystem(viewers));
+  }
+
+  private Optional<PlatformSystem> doSchemasElements(JsonParser parser, JsonNode node)
+          throws JsonProcessingException {
     List<Schemas> schemas =
-        new JsonSerdesUtils<Schemas>().parseApplicationUser(parser, node, Schemas.class);
+            new JsonSerdesUtils<Schemas>().parseApplicationUser(parser, node, Schemas.class);
     return Optional.of(new PlatformSystem(schemas));
   }
 

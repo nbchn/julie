@@ -7,13 +7,7 @@ import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.artefact.KConnectArtefacts;
 import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
-import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.KSqlApp;
-import com.purbon.kafka.topology.model.users.KStream;
-import com.purbon.kafka.topology.model.users.Other;
-import com.purbon.kafka.topology.model.users.Producer;
-import com.purbon.kafka.topology.model.users.Schemas;
+import com.purbon.kafka.topology.model.users.*;
 import com.purbon.kafka.topology.utils.JinjaUtils;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,6 +25,7 @@ public class ProjectImpl implements Project, Cloneable {
   private PlatformSystem<KSqlApp> ksqls;
   private PlatformSystem<Connector> connectors;
   private PlatformSystem<Schemas> schemas;
+  private PlatformSystem<C3Viewer> c3Viewers;
   private Map<String, List<String>> rbacRawRoles;
   private List<Map.Entry<String, PlatformSystem<Other>>> others;
 
@@ -116,6 +111,37 @@ public class ProjectImpl implements Project, Cloneable {
     this.order = new ArrayList<>();
   }
 
+  public ProjectImpl(
+          String name,
+          List<Topic> topics,
+          PlatformSystem<Consumer> consumers,
+          PlatformSystem<Producer> producers,
+          PlatformSystem<KStream> streams,
+          List<String> zookeepers,
+          PlatformSystem<Connector> connectors,
+          PlatformSystem<Schemas> schemas,
+          PlatformSystem<KSqlApp> ksqls,
+          PlatformSystem<C3Viewer> c3Viewers,
+          Map<String, List<String>> rbacRawRoles,
+          List<Map.Entry<String, PlatformSystem<Other>>> others,
+          Configuration config) {
+    this.name = name;
+    this.topics = topics;
+    this.consumers = consumers;
+    this.producers = producers;
+    this.streams = streams;
+    this.ksqls = ksqls;
+    this.zookeepers = zookeepers;
+    this.connectors = connectors;
+    this.schemas = schemas;
+    this.c3Viewers = c3Viewers;
+    this.rbacRawRoles = rbacRawRoles;
+    this.others = others;
+    this.config = config;
+    this.prefixContext = new HashMap<>();
+    this.order = new ArrayList<>();
+  }
+
   public String getName() {
     return name;
   }
@@ -154,6 +180,16 @@ public class ProjectImpl implements Project, Cloneable {
 
   public void setKSqls(List<KSqlApp> ksqls) {
     this.ksqls = new PlatformSystem<>(ksqls);
+  }
+
+  @Override
+  public List<C3Viewer> getC3Viewers() {
+    return c3Viewers.getAccessControlLists();
+  }
+
+  @Override
+  public void setC3Viewers(List<C3Viewer> viewers) {
+    this.c3Viewers = new PlatformSystem<>(viewers);
   }
 
   public List<Connector> getConnectors() {

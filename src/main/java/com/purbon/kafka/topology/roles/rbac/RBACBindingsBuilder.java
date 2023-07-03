@@ -11,14 +11,11 @@ import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.JulieRoleAcl;
-import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.KSqlApp;
-import com.purbon.kafka.topology.model.users.Other;
-import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.*;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.utils.Pair;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -188,16 +185,39 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
           }
 
           if (producer.hasTransactionId()) {
+            Pair<Boolean, String> transactionIDBindingsValues =
+                transactionIDBindingsValues(producer.getTransactionId().get());
             binding =
                 apiClient.bind(
                     producer.getPrincipal(),
                     DEVELOPER_WRITE,
-                    producer.getTransactionId().get(),
+                    transactionIDBindingsValues.getValue(),
                     "TransactionalId",
-                    LITERAL);
+                    transactionIDBindingsValues.getKey() ? PREFIX : LITERAL);
             bindings.add(binding);
           }
         });
+    return bindings;
+  }
+
+  @Override
+  public List<TopologyAclBinding> buildBindingsC3Viewers(Collection<C3Viewer> principals, String resource, boolean prefixed) {
+    String patternType = prefixed ? PREFIX : LITERAL;
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+    principals.forEach(
+            viewer -> {
+              TopologyAclBinding binding =
+                      apiClient.bind(viewer.getPrincipal(), DEVELOPER_READ, resource, patternType);
+              bindings.add(binding);
+              binding =
+                      apiClient.bind(
+                              viewer.getPrincipal(),
+                              RESOURCE_OWNER,
+                              "*",
+                              "Group",
+                              LITERAL);
+              bindings.add(binding);
+            });
     return bindings;
   }
 
@@ -494,5 +514,10 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
                     .apply("Connector", connector))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
+  }
+
+  private Pair<Boolean, String> transactionIDBindingsValues(String transactionId) {
+    Boolean isPrefixed = transactionId.contains("*");
+    return new Pair<>(isPrefixed, isPrefixed ? transactionId.replace("*", "") : transactionId);
   }
 }

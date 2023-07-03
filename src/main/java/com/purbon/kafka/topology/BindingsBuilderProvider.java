@@ -2,11 +2,7 @@ package com.purbon.kafka.topology;
 
 import com.purbon.kafka.topology.model.Component;
 import com.purbon.kafka.topology.model.JulieRoleAcl;
-import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.KSqlApp;
-import com.purbon.kafka.topology.model.users.Other;
-import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.*;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
@@ -31,6 +27,9 @@ public interface BindingsBuilderProvider {
 
   List<TopologyAclBinding> buildBindingsForProducers(
       Collection<Producer> principals, String resource, boolean prefixed);
+
+  List<TopologyAclBinding> buildBindingsC3Viewers(
+          Collection<C3Viewer> principals, String resource, boolean prefixed);
 
   default TopologyAclBinding setPredefinedRole(
       String principal, String predefinedRole, String topicPrefix) {

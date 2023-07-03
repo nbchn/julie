@@ -1,5 +1,6 @@
 package com.purbon.kafka.topology;
 
+import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.*;
 
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
@@ -7,6 +8,9 @@ import com.purbon.kafka.topology.model.Impl.TopologyImpl;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
+import com.purbon.kafka.topology.model.users.C3Viewer;
+import com.purbon.kafka.topology.model.users.Consumer;
+import com.purbon.kafka.topology.model.users.KStream;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
@@ -69,5 +73,32 @@ public class AccessControlWithRBACTest {
 
     verify(bindingsBuilder, times(1))
         .setPredefinedRole(eq("User:Foo"), eq("ResourceOwner"), eq(project.namePrefix()));
+  }
+  @Test
+  public void newC3ViewerRBACCreation() throws IOException {
+
+    Project project = new ProjectImpl();
+
+    C3Viewer viewer = new C3Viewer();
+    viewer.setPrincipal("User:App0");
+
+    project.setC3Viewers(singletonList(viewer));
+
+    Topology topology = new TopologyImpl();
+    topology.addProject(project);
+
+    accessControlManager.updatePlan(topology, plan);
+
+    doReturn(new ArrayList<TopologyAclBinding>())
+            .when(bindingsBuilder)
+            .buildBindingsC3Viewers(
+                    project.getC3Viewers(),
+                    project.namePrefix(),
+                    true);
+    verify(bindingsBuilder, times(1))
+            .buildBindingsC3Viewers(
+                    eq(Collections.singletonList(new C3Viewer("User:App0"))),
+                    eq(project.namePrefix()),
+                    eq(true));
   }
 }

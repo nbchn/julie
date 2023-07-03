@@ -6,11 +6,7 @@ import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.api.adminclient.AclBuilder;
 import com.purbon.kafka.topology.model.JulieRoleAcl;
-import com.purbon.kafka.topology.model.users.Connector;
-import com.purbon.kafka.topology.model.users.Consumer;
-import com.purbon.kafka.topology.model.users.KSqlApp;
-import com.purbon.kafka.topology.model.users.Other;
-import com.purbon.kafka.topology.model.users.Producer;
+import com.purbon.kafka.topology.model.users.*;
 import com.purbon.kafka.topology.model.users.platform.KsqlServerInstance;
 import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
@@ -111,6 +107,11 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
       Collection<Producer> producers, String resource, boolean prefixed) {
     return toList(
         producers.stream().flatMap(producer -> producerAclsStream(producer, resource, prefixed)));
+  }
+
+  @Override
+  public List<TopologyAclBinding> buildBindingsC3Viewers(Collection<C3Viewer> principals, String resource, boolean prefixed) {
+    return null;
   }
 
   @Override
