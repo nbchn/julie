@@ -26,6 +26,7 @@ public class ProjectImpl implements Project, Cloneable {
   private PlatformSystem<Connector> connectors;
   private PlatformSystem<Schemas> schemas;
   private PlatformSystem<C3Viewer> c3Viewers;
+  private PlatformSystem<Quota> quotas;
   private Map<String, List<String>> rbacRawRoles;
   private List<Map.Entry<String, PlatformSystem<Other>>> others;
 
@@ -84,6 +85,36 @@ public class ProjectImpl implements Project, Cloneable {
 
   public ProjectImpl(
       String name,
+      Optional<PlatformSystem<Consumer>> consumers,
+      Optional<PlatformSystem<Producer>> producers,
+      Optional<PlatformSystem<KStream>> streams,
+      Optional<PlatformSystem<Connector>> connectors,
+      Optional<PlatformSystem<Schemas>> schemas,
+      Optional<PlatformSystem<KSqlApp>> ksqls,
+      Optional<PlatformSystem<C3Viewer>> c3Viewers,
+      Optional<PlatformSystem<Quota>> quotas,
+      Map<String, List<String>> rbacRawRoles,
+      List<Map.Entry<String, PlatformSystem<Other>>> others,
+      Configuration config) {
+    this(
+        name,
+        new ArrayList<>(),
+        consumers.orElse(new PlatformSystem<>()),
+        producers.orElse(new PlatformSystem<>()),
+        streams.orElse(new PlatformSystem<>()),
+        new ArrayList<>(),
+        connectors.orElse(new PlatformSystem<>()),
+        schemas.orElse(new PlatformSystem<>()),
+        ksqls.orElse(new PlatformSystem<>()),
+        c3Viewers.orElse(new PlatformSystem<>()),
+        quotas.orElse(new PlatformSystem<>()),
+        rbacRawRoles,
+        others,
+        config);
+  }
+
+  public ProjectImpl(
+      String name,
       List<Topic> topics,
       PlatformSystem<Consumer> consumers,
       PlatformSystem<Producer> producers,
@@ -112,19 +143,19 @@ public class ProjectImpl implements Project, Cloneable {
   }
 
   public ProjectImpl(
-          String name,
-          List<Topic> topics,
-          PlatformSystem<Consumer> consumers,
-          PlatformSystem<Producer> producers,
-          PlatformSystem<KStream> streams,
-          List<String> zookeepers,
-          PlatformSystem<Connector> connectors,
-          PlatformSystem<Schemas> schemas,
-          PlatformSystem<KSqlApp> ksqls,
-          PlatformSystem<C3Viewer> c3Viewers,
-          Map<String, List<String>> rbacRawRoles,
-          List<Map.Entry<String, PlatformSystem<Other>>> others,
-          Configuration config) {
+      String name,
+      List<Topic> topics,
+      PlatformSystem<Consumer> consumers,
+      PlatformSystem<Producer> producers,
+      PlatformSystem<KStream> streams,
+      List<String> zookeepers,
+      PlatformSystem<Connector> connectors,
+      PlatformSystem<Schemas> schemas,
+      PlatformSystem<KSqlApp> ksqls,
+      PlatformSystem<C3Viewer> c3Viewers,
+      Map<String, List<String>> rbacRawRoles,
+      List<Map.Entry<String, PlatformSystem<Other>>> others,
+      Configuration config) {
     this.name = name;
     this.topics = topics;
     this.consumers = consumers;
@@ -135,6 +166,39 @@ public class ProjectImpl implements Project, Cloneable {
     this.connectors = connectors;
     this.schemas = schemas;
     this.c3Viewers = c3Viewers;
+    this.rbacRawRoles = rbacRawRoles;
+    this.others = others;
+    this.config = config;
+    this.prefixContext = new HashMap<>();
+    this.order = new ArrayList<>();
+  }
+
+  public ProjectImpl(
+      String name,
+      List<Topic> topics,
+      PlatformSystem<Consumer> consumers,
+      PlatformSystem<Producer> producers,
+      PlatformSystem<KStream> streams,
+      List<String> zookeepers,
+      PlatformSystem<Connector> connectors,
+      PlatformSystem<Schemas> schemas,
+      PlatformSystem<KSqlApp> ksqls,
+      PlatformSystem<C3Viewer> c3Viewers,
+      PlatformSystem<Quota> quotas,
+      Map<String, List<String>> rbacRawRoles,
+      List<Map.Entry<String, PlatformSystem<Other>>> others,
+      Configuration config) {
+    this.name = name;
+    this.topics = topics;
+    this.consumers = consumers;
+    this.producers = producers;
+    this.streams = streams;
+    this.ksqls = ksqls;
+    this.zookeepers = zookeepers;
+    this.connectors = connectors;
+    this.schemas = schemas;
+    this.c3Viewers = c3Viewers;
+    this.quotas = quotas;
     this.rbacRawRoles = rbacRawRoles;
     this.others = others;
     this.config = config;
@@ -190,6 +254,16 @@ public class ProjectImpl implements Project, Cloneable {
   @Override
   public void setC3Viewers(List<C3Viewer> viewers) {
     this.c3Viewers = new PlatformSystem<>(viewers);
+  }
+
+  @Override
+  public List<Quota> getQuotas() {
+    return quotas.getAccessControlLists();
+  }
+
+  @Override
+  public void setQuotas(List<Quota> quotas) {
+    this.quotas = new PlatformSystem<>(quotas);
   }
 
   public List<Connector> getConnectors() {

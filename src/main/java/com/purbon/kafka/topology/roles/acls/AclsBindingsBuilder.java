@@ -110,7 +110,8 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> buildBindingsC3Viewers(Collection<C3Viewer> principals, String resource, boolean prefixed) {
+  public List<TopologyAclBinding> buildBindingsC3Viewers(
+      Collection<C3Viewer> principals, String resource, boolean prefixed) {
     return null;
   }
 

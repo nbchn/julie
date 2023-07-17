@@ -1,8 +1,9 @@
 package com.purbon.kafka.topology.model.users;
 
+import com.purbon.kafka.topology.model.User;
 import java.util.Optional;
 
-public class Quota {
+public class Quota extends User {
 
   private String principal;
   private Optional<Double> producer_byte_rate;
@@ -10,7 +11,7 @@ public class Quota {
   private Optional<Double> request_percentage;
 
   public Quota() {
-    this.principal = null;
+    super();
     producer_byte_rate = Optional.empty();
     consumer_byte_rate = Optional.empty();
     request_percentage = Optional.empty();
@@ -21,7 +22,7 @@ public class Quota {
       Optional<Double> producer_byte_rate,
       Optional<Double> consumer_byte_rate,
       Optional<Double> request_percentage) {
-    this();
+    super(principal);
     this.principal = principal;
     this.producer_byte_rate = producer_byte_rate;
     this.consumer_byte_rate = consumer_byte_rate;
@@ -30,7 +31,7 @@ public class Quota {
 
   public Quota(
       String principal, Optional<Double> producer_byte_rate, Optional<Double> consumer_byte_rate) {
-    this();
+    super(principal);
     this.principal = principal;
     this.producer_byte_rate = producer_byte_rate;
     this.consumer_byte_rate = consumer_byte_rate;

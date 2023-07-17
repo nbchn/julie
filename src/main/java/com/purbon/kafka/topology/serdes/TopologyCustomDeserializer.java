@@ -57,7 +57,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   private static final String RBAC_KEY = "rbac";
   private static final String TOPICS_KEY = "topics";
   private static final String PRINCIPAL_KEY = "principal";
-  private static final String C3VIEWER_KEY = "viewer";
+  private static final String C3VIEWER_KEY = "viewers";
+  private static final String QUOTAS_KEY = "quotas";
 
   private static final String ACCESS_CONTROL = "access_control";
   private static final String ARTEFACTS = "artefacts";
@@ -78,7 +79,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
           SCHEMAS_KEY,
           KSQL_KEY,
           RBAC_KEY,
-          C3VIEWER_KEY);
+          C3VIEWER_KEY,
+          QUOTAS_KEY);
 
   private final Configuration config;
 
@@ -224,6 +226,9 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
           case C3VIEWER_KEY:
             optionalPlatformSystem = doC3ViewerElements(parser, keyNode);
             break;
+          case QUOTAS_KEY:
+            optionalPlatformSystem = doQuotasElements(parser, keyNode);
+            break;
           default:
             optionalPlatformSystem = Optional.empty();
             if (!key.equalsIgnoreCase(RBAC_KEY)) {
@@ -243,6 +248,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
             Optional.ofNullable(mapOfValues.get(CONNECTORS_KEY)),
             Optional.ofNullable(mapOfValues.get(SCHEMAS_KEY)),
             Optional.ofNullable(mapOfValues.get(KSQL_KEY)),
+            Optional.ofNullable(mapOfValues.get(C3VIEWER_KEY)),
+            Optional.ofNullable(mapOfValues.get(QUOTAS_KEY)),
             parseOptionalRbacRoles(rootNode.get(RBAC_KEY)),
             filterOthers(mapOfValues),
             config);
@@ -454,10 +461,17 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
     return Optional.of(new PlatformSystem(viewers));
   }
 
+  private Optional<PlatformSystem> doQuotasElements(JsonParser parser, JsonNode node)
+      throws JsonProcessingException {
+    List<Quota> viewers =
+        new JsonSerdesUtils<Quota>().parseApplicationUser(parser, node, Quota.class);
+    return Optional.of(new PlatformSystem(viewers));
+  }
+
   private Optional<PlatformSystem> doSchemasElements(JsonParser parser, JsonNode node)
-          throws JsonProcessingException {
+      throws JsonProcessingException {
     List<Schemas> schemas =
-            new JsonSerdesUtils<Schemas>().parseApplicationUser(parser, node, Schemas.class);
+        new JsonSerdesUtils<Schemas>().parseApplicationUser(parser, node, Schemas.class);
     return Optional.of(new PlatformSystem(schemas));
   }
 

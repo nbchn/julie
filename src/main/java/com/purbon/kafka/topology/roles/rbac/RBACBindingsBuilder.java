@@ -201,23 +201,18 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
   }
 
   @Override
-  public List<TopologyAclBinding> buildBindingsC3Viewers(Collection<C3Viewer> principals, String resource, boolean prefixed) {
+  public List<TopologyAclBinding> buildBindingsC3Viewers(
+      Collection<C3Viewer> principals, String resource, boolean prefixed) {
     String patternType = prefixed ? PREFIX : LITERAL;
     List<TopologyAclBinding> bindings = new ArrayList<>();
     principals.forEach(
-            viewer -> {
-              TopologyAclBinding binding =
-                      apiClient.bind(viewer.getPrincipal(), DEVELOPER_READ, resource, patternType);
-              bindings.add(binding);
-              binding =
-                      apiClient.bind(
-                              viewer.getPrincipal(),
-                              RESOURCE_OWNER,
-                              "*",
-                              "Group",
-                              LITERAL);
-              bindings.add(binding);
-            });
+        viewer -> {
+          TopologyAclBinding binding =
+              apiClient.bind(viewer.getPrincipal(), DEVELOPER_READ, resource, patternType);
+          bindings.add(binding);
+          binding = apiClient.bind(viewer.getPrincipal(), RESOURCE_OWNER, "*", "Group", LITERAL);
+          bindings.add(binding);
+        });
     return bindings;
   }
 

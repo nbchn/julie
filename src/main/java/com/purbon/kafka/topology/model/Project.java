@@ -6,7 +6,6 @@ import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.artefact.KConnectArtefacts;
 import com.purbon.kafka.topology.model.artefact.KsqlArtefacts;
 import com.purbon.kafka.topology.model.users.*;
-
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +36,10 @@ public interface Project {
   List<C3Viewer> getC3Viewers();
 
   void setC3Viewers(List<C3Viewer> ksqls);
+
+  List<Quota> getQuotas();
+
+  void setQuotas(List<Quota> quotas);
 
   Map<String, List<Other>> getOthers();
 

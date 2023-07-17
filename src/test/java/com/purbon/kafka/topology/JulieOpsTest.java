@@ -11,6 +11,7 @@ import com.purbon.kafka.topology.backend.RedisBackend;
 import com.purbon.kafka.topology.exceptions.TopologyParsingException;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -41,6 +42,8 @@ public class JulieOpsTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Mock RedisBackend stateProcessor;
+
+  @Mock PrintStream mockPrintStream;
 
   private Map<String, String> cliOps;
   private Properties props;
@@ -144,8 +147,12 @@ public class JulieOpsTest {
 
     builder.setTopicManager(topicManager);
     builder.setAccessControlManager(accessControlManager);
-    builder.setConnectorManager(connectorManager);
+    // builder.setConnectorManager(connectorManager);
     builder.setKSqlArtefactManager(ksqlArtefactManager);
+
+    var backendController = new BackendController();
+    var plan = ExecutionPlan.init(backendController, mockPrintStream);
+    builder.getConnectorManager().updatePlan(plan, builder.getTopologies());
 
     doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
@@ -207,6 +214,42 @@ public class JulieOpsTest {
     builder.setAccessControlManager(accessControlManager);
     builder.setConnectorManager(connectorManager);
     builder.setKSqlArtefactManager(ksqlArtefactManager);
+
+    doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
+
+    doNothing().when(accessControlManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
+
+    builder.run();
+    builder.close();
+
+    verify(topicManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
+    verify(accessControlManager, times(1)).updatePlan(any(ExecutionPlan.class), any(Map.class));
+  }
+
+  @Test
+  public void builderQuotaTest() throws Exception {
+    String fileOrDirPath = TestUtils.getResourceFilename("/descriptor-quotas.yaml");
+
+    Configuration builderConfig = new Configuration(cliOps, props);
+
+    BackendController backendController = new BackendController();
+    ExecutionPlan plan = ExecutionPlan.init(backendController, mockPrintStream);
+
+    JulieOps builder =
+        JulieOps.build(
+            fileOrDirPath,
+            builderConfig,
+            topologyAdminClient,
+            accessControlProvider,
+            bindingsBuilderProvider);
+
+    builder.setTopicManager(topicManager);
+    builder.setAccessControlManager(accessControlManager);
+    builder.setConnectorManager(connectorManager);
+    builder.setKSqlArtefactManager(ksqlArtefactManager);
+
+    builder.getAccessControlManager().updatePlan(plan, builder.getTopologies());
+    builder.getQuotasManager().updatePlan(plan, builder.getTopologies());
 
     doNothing().when(topicManager).updatePlan(any(ExecutionPlan.class), any(Map.class));
 
