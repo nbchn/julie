@@ -59,6 +59,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
   private static final String PRINCIPAL_KEY = "principal";
   private static final String C3VIEWER_KEY = "viewers";
   private static final String QUOTAS_KEY = "quotas";
+  private static final String CUSTOM_BINDING_KEY = "custom_rbac";
+
 
   private static final String ACCESS_CONTROL = "access_control";
   private static final String ARTEFACTS = "artefacts";
@@ -80,7 +82,8 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
           KSQL_KEY,
           RBAC_KEY,
           C3VIEWER_KEY,
-          QUOTAS_KEY);
+          QUOTAS_KEY,
+          CUSTOM_BINDING_KEY);
 
   private final Configuration config;
 
@@ -229,6 +232,9 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
           case QUOTAS_KEY:
             optionalPlatformSystem = doQuotasElements(parser, keyNode);
             break;
+          case CUSTOM_BINDING_KEY:
+            optionalPlatformSystem = doCustomBindingElements(parser, keyNode);
+            break;
           default:
             optionalPlatformSystem = Optional.empty();
             if (!key.equalsIgnoreCase(RBAC_KEY)) {
@@ -250,6 +256,7 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
             Optional.ofNullable(mapOfValues.get(KSQL_KEY)),
             Optional.ofNullable(mapOfValues.get(C3VIEWER_KEY)),
             Optional.ofNullable(mapOfValues.get(QUOTAS_KEY)),
+            Optional.ofNullable(mapOfValues.get(CUSTOM_BINDING_KEY)),
             parseOptionalRbacRoles(rootNode.get(RBAC_KEY)),
             filterOthers(mapOfValues),
             config);
@@ -458,6 +465,13 @@ public class TopologyCustomDeserializer extends StdDeserializer<Topology> {
       throws JsonProcessingException {
     List<C3Viewer> viewers =
         new JsonSerdesUtils<C3Viewer>().parseApplicationUser(parser, node, C3Viewer.class);
+    return Optional.of(new PlatformSystem(viewers));
+  }
+
+  private Optional<PlatformSystem> doCustomBindingElements(JsonParser parser, JsonNode node)
+          throws JsonProcessingException {
+    List<CustomBinding> viewers =
+            new JsonSerdesUtils<CustomBinding>().parseApplicationUser(parser, node, CustomBinding.class);
     return Optional.of(new PlatformSystem(viewers));
   }
 

@@ -41,6 +41,10 @@ public interface Project {
 
   void setQuotas(List<Quota> quotas);
 
+  List<CustomBinding> getCustomBindings();
+
+  void setCustomBindings(List<CustomBinding> customBindings);
+
   Map<String, List<Other>> getOthers();
 
   void setOthers(Map<String, List<Other>> others);

@@ -31,6 +31,10 @@ public interface BindingsBuilderProvider {
   List<TopologyAclBinding> buildBindingsC3Viewers(
       Collection<C3Viewer> principals, String resource, boolean prefixed);
 
+  List<TopologyAclBinding> buildBindingsCustomBindings(
+      Collection<CustomBinding> customBindings, String resource, boolean prefixed);
+
+
   default TopologyAclBinding setPredefinedRole(
       String principal, String predefinedRole, String topicPrefix) {
     // NOOP

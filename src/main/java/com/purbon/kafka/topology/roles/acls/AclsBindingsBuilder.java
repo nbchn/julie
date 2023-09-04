@@ -116,6 +116,11 @@ public class AclsBindingsBuilder implements BindingsBuilderProvider {
   }
 
   @Override
+  public List<TopologyAclBinding> buildBindingsCustomBindings(Collection<CustomBinding> customBindings, String resource, boolean prefixed) {
+    return null;
+  }
+
+  @Override
   public List<TopologyAclBinding> buildBindingsForSchemaRegistry(
       SchemaRegistryInstance schemaRegistry) {
     return toList(schemaRegistryAclsStream(schemaRegistry));

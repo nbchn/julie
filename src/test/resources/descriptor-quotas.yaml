@@ -11,6 +11,12 @@ projects:
         producer_byte_rate: 1024
         consumer_byte_rate: 1024
         request_percentage: 50.0
+    custom_rbac:
+      - principal: "User:App0"
+        role: "DeveloperRead"
+        resourceName: "Toto"
+        resourceType: "Topic"
+        prefixed: true
     topics:
       - name: "foo"
         config:

@@ -1,11 +1,7 @@
 package com.purbon.kafka.topology.roles.rbac;
 
 import static com.purbon.kafka.topology.api.mds.ClusterIDs.KSQL_CLUSTER_ID_LABEL;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_READ;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.DEVELOPER_WRITE;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.RESOURCE_OWNER;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.SECURITY_ADMIN;
-import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.SYSTEM_ADMIN;
+import static com.purbon.kafka.topology.roles.rbac.RBACPredefinedRoles.*;
 
 import com.purbon.kafka.topology.BindingsBuilderProvider;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
@@ -213,6 +209,22 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
           binding = apiClient.bind(viewer.getPrincipal(), RESOURCE_OWNER, "*", "Group", LITERAL);
           bindings.add(binding);
         });
+    return bindings;
+  }
+
+  @Override
+  public List<TopologyAclBinding> buildBindingsCustomBindings(
+      Collection<CustomBinding> customBindings, String resource, boolean prefixed) {
+    List<TopologyAclBinding> bindings = new ArrayList<>();
+    customBindings.forEach(
+        customBinding -> bindings.add(
+          apiClient.bindCustom(customBinding.getPrincipal(),
+          customBinding.getRoleString(),
+          customBinding.getResourceNameString(),
+          customBinding.getResourceTypeString(),
+          customBinding.gePrefixedBool() ? PREFIX : LITERAL)
+        )
+    );
     return bindings;
   }
 

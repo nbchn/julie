@@ -27,6 +27,7 @@ public class ProjectImpl implements Project, Cloneable {
   private PlatformSystem<Schemas> schemas;
   private PlatformSystem<C3Viewer> c3Viewers;
   private PlatformSystem<Quota> quotas;
+  private PlatformSystem<CustomBinding> customBindings;
   private Map<String, List<String>> rbacRawRoles;
   private List<Map.Entry<String, PlatformSystem<Other>>> others;
 
@@ -111,6 +112,38 @@ public class ProjectImpl implements Project, Cloneable {
         rbacRawRoles,
         others,
         config);
+  }
+
+  public ProjectImpl(
+          String name,
+          Optional<PlatformSystem<Consumer>> consumers,
+          Optional<PlatformSystem<Producer>> producers,
+          Optional<PlatformSystem<KStream>> streams,
+          Optional<PlatformSystem<Connector>> connectors,
+          Optional<PlatformSystem<Schemas>> schemas,
+          Optional<PlatformSystem<KSqlApp>> ksqls,
+          Optional<PlatformSystem<C3Viewer>> c3Viewers,
+          Optional<PlatformSystem<Quota>> quotas,
+          Optional<PlatformSystem<CustomBinding>> customBinding,
+          Map<String, List<String>> rbacRawRoles,
+          List<Map.Entry<String, PlatformSystem<Other>>> others,
+          Configuration config) {
+    this(
+            name,
+            new ArrayList<>(),
+            consumers.orElse(new PlatformSystem<>()),
+            producers.orElse(new PlatformSystem<>()),
+            streams.orElse(new PlatformSystem<>()),
+            new ArrayList<>(),
+            connectors.orElse(new PlatformSystem<>()),
+            schemas.orElse(new PlatformSystem<>()),
+            ksqls.orElse(new PlatformSystem<>()),
+            c3Viewers.orElse(new PlatformSystem<>()),
+            quotas.orElse(new PlatformSystem<>()),
+            customBinding.orElse(new PlatformSystem<>()),
+            rbacRawRoles,
+            others,
+            config);
   }
 
   public ProjectImpl(
@@ -206,6 +239,41 @@ public class ProjectImpl implements Project, Cloneable {
     this.order = new ArrayList<>();
   }
 
+  public ProjectImpl(
+          String name,
+          List<Topic> topics,
+          PlatformSystem<Consumer> consumers,
+          PlatformSystem<Producer> producers,
+          PlatformSystem<KStream> streams,
+          List<String> zookeepers,
+          PlatformSystem<Connector> connectors,
+          PlatformSystem<Schemas> schemas,
+          PlatformSystem<KSqlApp> ksqls,
+          PlatformSystem<C3Viewer> c3Viewers,
+          PlatformSystem<Quota> quotas,
+          PlatformSystem<CustomBinding> customBindings,
+          Map<String, List<String>> rbacRawRoles,
+          List<Map.Entry<String, PlatformSystem<Other>>> others,
+          Configuration config) {
+    this.name = name;
+    this.topics = topics;
+    this.consumers = consumers;
+    this.producers = producers;
+    this.streams = streams;
+    this.ksqls = ksqls;
+    this.zookeepers = zookeepers;
+    this.connectors = connectors;
+    this.schemas = schemas;
+    this.c3Viewers = c3Viewers;
+    this.quotas = quotas;
+    this.customBindings = customBindings;
+    this.rbacRawRoles = rbacRawRoles;
+    this.others = others;
+    this.config = config;
+    this.prefixContext = new HashMap<>();
+    this.order = new ArrayList<>();
+  }
+
   public String getName() {
     return name;
   }
@@ -264,6 +332,16 @@ public class ProjectImpl implements Project, Cloneable {
   @Override
   public void setQuotas(List<Quota> quotas) {
     this.quotas = new PlatformSystem<>(quotas);
+  }
+
+  @Override
+  public List<CustomBinding> getCustomBindings() {
+    return customBindings.getAccessControlLists();
+  }
+
+  @Override
+  public void setCustomBindings(List<CustomBinding> customBindings) {
+    this.customBindings = new PlatformSystem<>(customBindings);
   }
 
   public List<Connector> getConnectors() {
